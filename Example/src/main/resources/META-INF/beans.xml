@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/tx
+       http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+
+    <context:annotation-config/>
+
+
+    <context:component-scan base-package="db.Logs"/>
+    <context:component-scan base-package="db.Activity"/>
+
+    <tx:annotation-driven transaction-manager="transactionManager" />
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="org.postgresql.Driver"/>
+        <property name="url" value="jdbc:postgresql://localhost:5432/Main"/>
+        <property name="username" value="postgres"/>
+        <property name="password" value="admin"/>
+    </bean>
+
+    <!--Здесь мы конфигурируем источник данных (data source), в свойствах которого указываем основные параметры подключения
+    (адрес, имя, пароль, драйвер и т.п.)
+
+    Следующие два бина содержат информацию о той СУБД, к которой мы подключаемся.
+    Также здесь указывается класс диалекта в hibernate, который учитывает особенности нашей базы.-->
+
+    <bean id="jpaDialect" class="org.springframework.orm.jpa.vendor.HibernateJpaDialect"/>
+
+    <bean id="jpaVendorAdapter"
+          class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+        <property name="database" value="POSTGRESQL"/>
+        <property name="databasePlatform" value="org.hibernate.dialect.PostgreSQL95Dialect"/>
+    </bean>
+
+    <!--Далее идёт самый основной бин менеджера сущностей.
+    Именно он будет подставляться в наш сервис. Здесь мы указываем местонахождение файла persistence.xml
+    (о нём см. ниже), имя persistenceUnit, а также ссылаемся на уже определённые нам другие бины.
+    !-->
+
+    <bean class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean" id="entityManagerFactory">
+        <property name="persistenceXmlLocation" value="classpath:META-INF/persistence.xml"/>
+        <property name="persistenceUnitName" value="developer.remarks.persistence.unit"/>
+        <property name="dataSource" ref="dataSource"/>
+        <property name="jpaVendorAdapter" ref="jpaVendorAdapter"/>
+        <property name="jpaDialect" ref="jpaDialect"/>
+    </bean>
+
+    <!--Ну и наконец менеджер транзакций. Наши действия с БД будут автоматически выполняться в рамках транзакций при помощи данного бина.-->
+
+    <bean id="transactionManager"
+          class="org.springframework.orm.jpa.JpaTransactionManager">
+        <property name="entityManagerFactory" ref="entityManagerFactory"/>
+        <property name="dataSource" ref="dataSource"/>
+        <property name="jpaDialect" ref="jpaDialect"/>
+    </bean>
+
+</beans>
