@@ -1,10 +1,7 @@
 package db.Activity;
 
-import org.hibernate.annotations.Type;
-
 import javax.persistence.*;
 import java.io.Serializable;
-import java.math.BigInteger;
 
 @Entity(name = "activity")
 public class DBActivity implements Serializable{

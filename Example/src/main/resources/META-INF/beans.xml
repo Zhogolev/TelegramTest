@@ -15,13 +15,22 @@
     <context:component-scan base-package="db.Logs"/>
     <context:component-scan base-package="db.Activity"/>
 
-    <tx:annotation-driven transaction-manager="transactionManager" />
-    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-        <property name="driverClassName" value="org.postgresql.Driver"/>
-        <property name="url" value="jdbc:postgresql://localhost:5432/Main"/>
-        <property name="username" value="postgres"/>
-        <property name="password" value="admin"/>
+    <context:property-placeholder location="botconfig.properties" />
+
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="url">
+            <value>${jdbc.url}</value>
+        </property>
+        <property name="username">
+            <value>${jdbc.login}</value>
+        </property>
+        <property name="password">
+            <value>${jdbc.password}</value>
+        </property>
     </bean>
+
+    <tx:annotation-driven transaction-manager="transactionManager" />
+
 
     <!--Здесь мы конфигурируем источник данных (data source), в свойствах которого указываем основные параметры подключения
     (адрес, имя, пароль, драйвер и т.п.)
